@@ -12,7 +12,7 @@ const SignUp = () => (
       password: "",
       fullName: "",
       universityId: 9,
-      unversityCard: "",
+      universityCard: "",
     }}
     onSubmit={() => {}}
   />

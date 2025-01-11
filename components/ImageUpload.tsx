@@ -1,7 +1,136 @@
-import React from "react";
+import React, { useRef, useState } from "react";
+import config from "@/lib/config";
+import { IKImage, IKUpload, IKVideo, ImageKitProvider } from "imagekitio-next";
+import { cn } from "@/lib/utils";
+import Image from "next/image";
+import { useToast } from "@/hooks/use-toast";
 
-const ImageUpload = () => {
-  return <div>ImageUpload</div>;
+const { publicKey, urlEndpoint } = config.env.imagekit;
+
+const authenticator = async () => {
+  try {
+    const response = await fetch(`${config.env.apiEndpoint}/api/auth/imageKit`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `Request failed with status ${response.status}: ${errorText}`
+      );
+    }
+
+    const data = await response.json();
+    const { token, signature, expire } = data;
+    return { token, expire, signature };
+  } catch (error: any) {
+    throw new Error(`Authentication request failed: ${error.message}`);
+  }
+};
+
+interface Props {
+  type: "image" | "video";
+  accept: string;
+  placeholder: string;
+  folder: string;
+  variant: "dark" | "light";
+  onFileChange: (filePath: string) => void;
+  value?: string;
+}
+
+const ImageUpload = ({
+  type,
+  accept,
+  placeholder,
+  folder,
+  variant,
+  onFileChange,
+  value,
+}: Props) => {
+  const { toast } = useToast();
+  const ikUploadRef = useRef(null);
+  const [file, setFile] = useState<{ filePath: string } | null>(null);
+
+  const styles = {
+    button:
+      variant === "dark"
+        ? "bg-dark-300"
+        : "bg-light-600 border-gray-100 border",
+    placeholder: variant === "dark" ? "text-light-100" : "text-slate-500",
+    text: variant === "dark" ? "text-light-100" : "text-dark-400",
+  };
+
+  const onError = (error: any) => {
+    toast({
+      title: `${type} upload failed`,
+      description: `Your ${type} could not be uploaded. Please try again.`,
+      variant: "destructive",
+    });
+  };
+
+  const onSuccess = (res: any) => {
+    setFile(res);
+    onFileChange(res.filePath);
+
+    toast({
+      title: `${type} uploaded successfully`,
+      description: `${res.filePath} uploaded successfully!`,
+    });
+  };
+
+  return (
+    <ImageKitProvider
+      urlEndpoint={urlEndpoint}
+      publicKey={publicKey}
+      authenticator={authenticator}
+    >
+      <IKUpload
+        className="hidden"
+        ref={ikUploadRef}
+        onError={onError}
+        onSuccess={onSuccess}
+      />
+
+      <button
+        className={cn("upload-btn", styles.button)}
+        onClick={(e) => {
+          e.preventDefault();
+
+          if (ikUploadRef.current) {
+            // @ts-ignore
+            ikUploadRef.current?.click();
+          }
+        }}
+      >
+        <Image
+          src="/icons/upload.svg"
+          alt="upload-icon"
+          width={20}
+          height={20}
+          className="object-contain"
+        />
+
+        <p className={cn("text-base", styles.placeholder)}>{placeholder}</p>
+
+        {file && (
+          <p className={cn("upload-filename", styles.text)}>{file.filePath}</p>
+        )}
+      </button>
+
+      {file &&
+        (type === "image" ? (
+          <IKImage
+            alt={file.filePath}
+            path={file.filePath}
+            width={500}
+            height={300}
+          />
+        ) : type === "video" ? (
+          <IKVideo
+            path={file.filePath}
+            controls={true}
+            className="h-96 w-full rounded-xl"
+          />
+        ) : null)}
+    </ImageKitProvider>
+  );
 };
 
 export default ImageUpload;
