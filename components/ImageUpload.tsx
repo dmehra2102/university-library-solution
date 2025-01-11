@@ -46,6 +46,7 @@ const ImageUpload = ({
 }: Props) => {
   const { toast } = useToast();
   const ikUploadRef = useRef(null);
+  const [progress, setProgress] = useState(0);
   const [file, setFile] = useState<{ filePath: string } | null>(null);
 
   const styles = {
@@ -86,10 +87,16 @@ const ImageUpload = ({
         ref={ikUploadRef}
         onError={onError}
         onSuccess={onSuccess}
+        onUploadStart={() => setProgress(0)}
+        onUploadProgress={({ loaded, total }) => {
+          const percent = Math.round((loaded / total) * 100);
+          setProgress(percent);
+        }}
       />
 
       <button
         className={cn("upload-btn", styles.button)}
+        disabled={progress > 0 && progress !== 100}
         onClick={(e) => {
           e.preventDefault();
 
@@ -113,6 +120,14 @@ const ImageUpload = ({
           <p className={cn("upload-filename", styles.text)}>{file.filePath}</p>
         )}
       </button>
+
+      {progress > 0 && progress !== 100 && (
+        <div className="w-full rounded-full bg-green-200">
+          <div className="progress" style={{ width: `${progress}%` }}>
+            {progress}%
+          </div>
+        </div>
+      )}
 
       {file &&
         (type === "image" ? (
