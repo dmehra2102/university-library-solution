@@ -3,9 +3,9 @@
 import { signIn } from "@/auth";
 import { hash } from "bcryptjs";
 import { eq } from "drizzle-orm";
-import ratelimit from "@/ratelimit";
 import { headers } from "next/headers";
 import { db } from "@/database/drizzle";
+import ratelimit from "@/lib/ratelimit";
 import { users } from "@/database/schema";
 import { redirect } from "next/navigation";
 
