@@ -21,7 +21,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import Link from "next/link";
-import ImageUpload from "./ImageUpload";
+import FileUpload from "./FileUpload";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
@@ -100,7 +100,7 @@ const AuthForm = <T extends FieldValues>({
                   </FormLabel>
                   <FormControl>
                     {field.name === "universityCard" ? (
-                      <ImageUpload
+                      <FileUpload
                         type="image"
                         accept="image/*"
                         placeholder="Upload your ID"
