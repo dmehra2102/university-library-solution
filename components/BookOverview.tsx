@@ -1,15 +1,17 @@
-import Image from "next/image";
 import React from "react";
-import { Button } from "./ui/button";
+import Image from "next/image";
 import BookCover from "./BookCover";
+import { Button } from "./ui/button";
+
+interface Props {}
 
 const BookOverview = ({
   title,
   author,
   genre,
   rating,
-  available_copies,
-  total_copies,
+  availableCopies,
+  totalCopies,
   description,
   coverColor,
   coverUrl,
@@ -36,11 +38,11 @@ const BookOverview = ({
 
         <div className="book-copies">
           <p>
-            Total Books <span>{total_copies}</span>
+            Total Books <span>{totalCopies}</span>
           </p>
 
           <p>
-            Available Books <span>{available_copies}</span>
+            Available Books <span>{availableCopies}</span>
           </p>
         </div>
 
